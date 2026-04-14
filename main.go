@@ -36,9 +36,10 @@ func main() {
 
 	feedSvc := service.NewFeedService(feedRepo, artRepo, f)
 	artSvc := service.NewArticleService(artRepo)
+	ftSvc := service.NewFulltextService(artRepo)
 
 	feedH := handler.NewFeedHandler(feedSvc, cfg.Fetcher.MinRefreshInterval)
-	artH := handler.NewArticleHandler(artSvc)
+	artH := handler.NewArticleHandler(artSvc, ftSvc)
 
 	r := gin.Default()
 	r.Use(corsMiddleware(cfg.Server.CORSOrigins))
@@ -53,6 +54,7 @@ func main() {
 
 		api.GET("/articles", artH.List)
 		api.GET("/articles/:id", artH.GetByID)
+		api.GET("/articles/:id/fulltext", artH.FetchFulltext)
 		api.PATCH("/articles/:id", artH.Update)
 	}
 
