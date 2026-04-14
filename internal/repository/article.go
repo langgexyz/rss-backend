@@ -42,7 +42,7 @@ type ArticleFilter struct {
 
 type ArticleWithFeedTitle struct {
 	model.Article
-	FeedTitle string
+	FeedTitle string `json:"feed_title"`
 }
 
 type ArticleListResult struct {
