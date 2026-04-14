@@ -98,7 +98,7 @@ func TestFeedHandler_Delete(t *testing.T) {
 	require.Equal(t, http.StatusAccepted, w1.Code)
 	var feed map[string]interface{}
 	json.Unmarshal(w1.Body.Bytes(), &feed)
-	id := int(feed["ID"].(float64))
+	id := int(feed["id"].(float64))
 
 	// Delete
 	req := httptest.NewRequest(http.MethodDelete, "/api/feeds/"+strconv.Itoa(id), nil)
@@ -153,6 +153,6 @@ func TestArticleHandler_Update_FieldWhitelist(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	var art map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &art)
-	assert.Equal(t, true, art["IsStarred"])
-	assert.Equal(t, "original content", art["Content"])
+	assert.Equal(t, true, art["is_starred"])
+	assert.Equal(t, "original content", art["content"])
 }
