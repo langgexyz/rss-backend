@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -29,7 +30,12 @@ func (h *FeedHandler) Create(c *gin.Context) {
 
 	feed, err := h.svc.CreateFeed(req.URL)
 	if err != nil {
-		respondErr(c, http.StatusConflict, "FEED_ALREADY_EXISTS", "该订阅源已添加")
+		// MySQL duplicate entry: error number 1062
+		if strings.Contains(err.Error(), "1062") || strings.Contains(err.Error(), "Duplicate entry") {
+			respondErr(c, http.StatusConflict, "FEED_ALREADY_EXISTS", "该订阅源已添加")
+			return
+		}
+		respondErr(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error())
 		return
 	}
 	c.JSON(http.StatusAccepted, feed)
