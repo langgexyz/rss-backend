@@ -12,11 +12,12 @@ import (
 )
 
 type ArticleHandler struct {
-	svc *service.ArticleService
+	svc         *service.ArticleService
+	fulltextSvc *service.FulltextService
 }
 
-func NewArticleHandler(svc *service.ArticleService) *ArticleHandler {
-	return &ArticleHandler{svc: svc}
+func NewArticleHandler(svc *service.ArticleService, ftSvc *service.FulltextService) *ArticleHandler {
+	return &ArticleHandler{svc: svc, fulltextSvc: ftSvc}
 }
 
 func (h *ArticleHandler) List(c *gin.Context) {
@@ -98,6 +99,24 @@ func (h *ArticleHandler) Update(c *gin.Context) {
 	}
 	if err != nil {
 		respondErr(c, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error())
+		return
+	}
+	respondOK(c, art)
+}
+
+func (h *ArticleHandler) FetchFulltext(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		respondErr(c, http.StatusBadRequest, "INVALID_ID", "无效的 ID")
+		return
+	}
+	art, err := h.fulltextSvc.FetchFulltext(uint(id))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		respondErr(c, http.StatusNotFound, "ARTICLE_NOT_FOUND", "文章不存在")
+		return
+	}
+	if err != nil {
+		respondErr(c, http.StatusInternalServerError, "FETCH_FAILED", err.Error())
 		return
 	}
 	respondOK(c, art)
