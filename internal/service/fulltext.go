@@ -92,18 +92,11 @@ func findNode(n *html.Node, tag string) *html.Node {
 }
 
 func nodeText(n *html.Node) string {
-	var sb strings.Builder
-	var walk func(*html.Node)
-	walk = func(node *html.Node) {
-		if node.Type == html.TextNode {
-			sb.WriteString(node.Data)
-		}
-		for c := node.FirstChild; c != nil; c = c.NextSibling {
-			walk(c)
-		}
+	var buf strings.Builder
+	if err := html.Render(&buf, n); err != nil {
+		return ""
 	}
-	walk(n)
-	return strings.TrimSpace(sb.String())
+	return strings.TrimSpace(buf.String())
 }
 
 func longestDiv(doc *html.Node) string {
