@@ -8,10 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"rss-backend/internal/fetcher"
 	"rss-backend/internal/repository"
+	"rss-backend/internal/testutil"
 )
 
 func TestArticleRepository_Upsert_Idempotent(t *testing.T) {
-	db := setupTestDB(t)
+	db := testutil.SetupMySQL(t)
 	feedRepo := repository.NewFeedRepository(db)
 	artRepo := repository.NewArticleRepository(db)
 
@@ -32,7 +33,7 @@ func TestArticleRepository_Upsert_Idempotent(t *testing.T) {
 }
 
 func TestArticleRepository_Upsert_DoesNotOverwriteUserState(t *testing.T) {
-	db := setupTestDB(t)
+	db := testutil.SetupMySQL(t)
 	feedRepo := repository.NewFeedRepository(db)
 	artRepo := repository.NewArticleRepository(db)
 
@@ -53,7 +54,7 @@ func TestArticleRepository_Upsert_DoesNotOverwriteUserState(t *testing.T) {
 }
 
 func TestArticleRepository_Upsert_ProtectsFullContent(t *testing.T) {
-	db := setupTestDB(t)
+	db := testutil.SetupMySQL(t)
 	feedRepo := repository.NewFeedRepository(db)
 	artRepo := repository.NewArticleRepository(db)
 
@@ -75,7 +76,7 @@ func TestArticleRepository_Upsert_ProtectsFullContent(t *testing.T) {
 }
 
 func TestArticleRepository_List_FilterByFeed(t *testing.T) {
-	db := setupTestDB(t)
+	db := testutil.SetupMySQL(t)
 	feedRepo := repository.NewFeedRepository(db)
 	artRepo := repository.NewArticleRepository(db)
 
