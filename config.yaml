@@ -1,0 +1,13 @@
+server:
+  port: 8080
+  cors_origins:
+    - "http://localhost:5173"
+
+database:
+  dsn: "root:password@tcp(127.0.0.1:3306)/rss_reader?charset=utf8mb4&parseTime=True&loc=UTC"
+
+fetcher:
+  timeout_seconds: 15
+  max_articles_per_feed: 100
+  max_concurrent: 5
+  min_refresh_interval: 300
