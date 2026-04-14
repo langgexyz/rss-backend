@@ -60,3 +60,25 @@ func (s *FeedService) triggerFetch(feedID uint, url string) {
 	now := time.Now().UTC()
 	s.feedRepo.UpdateStatus(feedID, "success", "", &now, &nf.UpdatedAt, nf.Title)
 }
+
+var ErrTooSoon = fmt.Errorf("too soon to refresh")
+
+func (s *FeedService) RefreshFeed(id uint, minIntervalSecs int) error {
+	feed, err := s.feedRepo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	// 首次 last_fetched_at 为 nil 时不限制
+	if feed.LastFetchedAt != nil {
+		elapsed := time.Since(*feed.LastFetchedAt).Seconds()
+		if elapsed < float64(minIntervalSecs) {
+			return ErrTooSoon
+		}
+	}
+	go s.triggerFetch(id, feed.URL)
+	return nil
+}
+
+func (s *FeedService) DeleteFeed(id uint) error {
+	return s.feedRepo.Delete(id)
+}
