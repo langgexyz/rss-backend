@@ -37,7 +37,7 @@ func main() {
 	feedSvc := service.NewFeedService(feedRepo, artRepo, f)
 	artSvc := service.NewArticleService(artRepo)
 
-	feedH := handler.NewFeedHandler(feedSvc)
+	feedH := handler.NewFeedHandler(feedSvc, cfg.Fetcher.MinRefreshInterval)
 	artH := handler.NewArticleHandler(artSvc)
 
 	r := gin.Default()
@@ -48,6 +48,8 @@ func main() {
 		api.POST("/feeds", feedH.Create)
 		api.GET("/feeds", feedH.List)
 		api.GET("/feeds/:id", feedH.GetByID)
+		api.POST("/feeds/:id/refresh", feedH.Refresh)
+		api.DELETE("/feeds/:id", feedH.Delete)
 
 		api.GET("/articles", artH.List)
 		api.GET("/articles/:id", artH.GetByID)
