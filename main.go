@@ -34,9 +34,9 @@ func main() {
 	feedRepo := repository.NewFeedRepository(db)
 	artRepo := repository.NewArticleRepository(db)
 
-	feedSvc := service.NewFeedService(feedRepo, artRepo, f)
 	artSvc := service.NewArticleService(artRepo)
 	ftSvc := service.NewFulltextService(artRepo)
+	feedSvc := service.NewFeedService(feedRepo, artRepo, f, ftSvc)
 
 	feedH := handler.NewFeedHandler(feedSvc, cfg.Fetcher.MinRefreshInterval)
 	artH := handler.NewArticleHandler(artSvc, ftSvc)
