@@ -69,14 +69,43 @@ func (s *FulltextService) FetchFulltext(id uint) (*repository.ArticleWithFeedTit
 	return art, nil
 }
 
+// noiseTags 是正文里不需要的 UI 元素，渲染前统一删除
+var noiseTag = map[string]bool{
+	"script": true, "style": true, "nav": true, "header": true,
+	"footer": true, "aside": true, "button": true, "form": true,
+	"input": true, "select": true, "textarea": true, "iframe": true,
+	"noscript": true, "figure": true, "figcaption": true,
+}
+
 func extractMainContent(doc *html.Node) string {
 	if n := findNode(doc, "article"); n != nil {
+		stripNoise(n)
 		return nodeText(n)
 	}
 	if n := findNode(doc, "main"); n != nil {
+		stripNoise(n)
 		return nodeText(n)
 	}
 	return longestDiv(doc)
+}
+
+// stripNoise 从节点树中原地删除所有噪声元素
+func stripNoise(n *html.Node) {
+	var toRemove []*html.Node
+	var walk func(*html.Node)
+	walk = func(node *html.Node) {
+		if node.Type == html.ElementNode && noiseTag[node.Data] {
+			toRemove = append(toRemove, node)
+			return // 子节点一并删除，不再递归
+		}
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
+	}
+	walk(n)
+	for _, node := range toRemove {
+		node.Parent.RemoveChild(node)
+	}
 }
 
 func findNode(n *html.Node, tag string) *html.Node {
